@@ -6,7 +6,10 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div id="game-container">
+    <!-- Start Game Button -->
+    <button id="start-game-btn">Start Game</button>
+
+    <div id="game-container" style="display: none;">
         <img id="scene-image" src="" alt="Current View">
         <!-- Overlay with buttons and clickable areas -->
         <div id="overlay">
@@ -17,7 +20,21 @@
         </div>
         <!-- Text display area -->
         <div id="message-box"></div>
+        <!-- Item bar -->
+        <div id="item-bar">
+            <div class="item-slot" data-slot="1"></div>
+            <div class="item-slot" data-slot="2"></div>
+            <div class="item-slot" data-slot="3"></div>
+            <div class="item-slot" data-slot="4"></div>
+            <div class="item-slot" data-slot="5"></div>
+        </div>
     </div>
+
+    <!-- Background Music -->
+    <audio id="background-music" src="audio/background_music.mp3" preload="auto"></audio>
+
+    <!-- Music Control Button -->
+    <button id="toggle-music-btn" style="display: none;">Mute Music</button>
 
     <script src="game.js"></script>
 </body>

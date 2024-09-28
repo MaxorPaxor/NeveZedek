@@ -11,6 +11,9 @@ let player = {
 // Game progress state
 let progress = 0; // A number between 0 and 7
 
+// Player's inventory
+let inventory = []; // Array to hold item IDs
+
 // Mapping of directions for rotation
 const directions = ['N', 'E', 'S', 'W'];
 
@@ -22,42 +25,131 @@ const moveForwardBtn = document.getElementById('move-forward');
 const overlay = document.getElementById('overlay');
 const messageBox = document.getElementById('message-box');
 
-// Clickable areas data
+// Initialize the game
+function initGame() {
+    // Add event listener to Start Game button
+    const startGameBtn = document.getElementById('start-game-btn');
+    startGameBtn.addEventListener('click', function() {
+        // Hide the Start Game button
+        startGameBtn.style.display = 'none';
+        // Show the game container
+        document.getElementById('game-container').style.display = 'block';
+        // Show the music control button
+        document.getElementById('toggle-music-btn').style.display = 'block';
+        // Play background music
+        playBackgroundMusic();
+        // Proceed with the game setup
+        updateSceneImage();
+        // Add event listeners
+        rotateLeftBtn.addEventListener('click', rotateLeft);
+        rotateRightBtn.addEventListener('click', rotateRight);
+        moveForwardBtn.addEventListener('click', moveForward);
+        // Add event listener to toggle music button
+        const toggleMusicBtn = document.getElementById('toggle-music-btn');
+        toggleMusicBtn.addEventListener('click', toggleMusic);
+    });
+}
+
+// Function to play background music
+function playBackgroundMusic() {
+    const backgroundMusic = document.getElementById('background-music');
+    backgroundMusic.loop = true; // Enable looping
+    backgroundMusic.volume = 0.5; // Set volume (0.0 to 1.0)
+    backgroundMusic.play().catch(function(error) {
+        // Handle autoplay blocking in browsers
+        console.log('Autoplay was prevented:', error);
+    });
+}
+
+// Function to toggle music
+function toggleMusic() {
+    const backgroundMusic = document.getElementById('background-music');
+    const toggleMusicBtn = document.getElementById('toggle-music-btn');
+    if (backgroundMusic.muted) {
+        backgroundMusic.muted = false;
+        toggleMusicBtn.textContent = 'Mute Music';
+    } else {
+        backgroundMusic.muted = true;
+        toggleMusicBtn.textContent = 'Unmute Music';
+    }
+}
+
+// Clickable areas data with new items added
 const clickableAreasData = {
     '0_0_N': [
+        // Existing clickable areas in this scene
         {
             top: '30%',
             left: '40%',
             width: '20%',
             height: '20%',
-            texts: {
-                0: 'You found a hidden object!',
-                1: 'You already found this object.',
-                2: 'The object seems different now.',
-                3: 'Nothing more to see here.'
+            getText: function() {
+                if (progress === 0 && inventory.includes(1)) {
+                    return 'You have found a secret passage! (Text2)';
+                } else {
+                    return 'This is an old oak tree. (Text1)';
+                }
             },
             onClick: function() {
-                if (progress === 0) {
-                    progress = 1;
-                } else if (progress === 2) {
-                    progress = 3;
+                if (progress === 0 && inventory.includes(1)) {
+                    progress += 1; // Increment the progress level by 1
+                    showMessage('Your progress has increased!');
                 }
-                // You can add more conditions as needed
             }
         },
-        // Add more clickable areas for this scene...
+        // Item 1 placement
+        {
+            top: '50%',
+            left: '60%',
+            width: '10%',
+            height: '10%',
+            item: 1 // Item ID
+            // No onClick function needed
+        },
     ],
-    // Add more scenes...
+    '0_0_E': [
+        // Item 2 placement
+        {
+            top: '50%',
+            left: '50%',
+            width: '10%',
+            height: '10%',
+            item: 2 // Item ID
+            // No onClick function needed
+        },
+    ],
+    '0_0_S': [
+        // Item 3 with conditional pickup
+        {
+            top: '50%',
+            left: '50%',
+            width: '10%',
+            height: '10%',
+            item: 3, // Item ID
+            getText: function() {
+                if (inventory.includes(1) && inventory.includes(2)) {
+                    return 'You can now pick up the mystical Item 3!';
+                } else {
+                    return 'A mysterious object is here, but you feel like something is missing.';
+                }
+            },
+            onClick: function() {
+                if (inventory.includes(1) && inventory.includes(2)) {
+                    // Player can pick up the item
+                    inventory.push(3);
+                    updateItemBar();
+                    showMessage('You have acquired Item 3!');
+                    // Remove the item from the scene
+                    this.remove();
+                } else {
+                    // Cannot pick up the item yet
+                    showMessage('You need Items 1 and 2 to pick this up.');
+                }
+            }
+        },
+    ],
+    // Other scenes...
 };
-
-// Initialize the game
-function initGame() {
-    updateSceneImage();
-    // Add event listeners
-    rotateLeftBtn.addEventListener('click', rotateLeft);
-    rotateRightBtn.addEventListener('click', rotateRight);
-    moveForwardBtn.addEventListener('click', moveForward);
-}
 
 // Update the scene image based on player's position and direction
 function updateSceneImage() {
@@ -94,35 +186,86 @@ function removeClickableAreas() {
 
 // Function to add a clickable area
 function addClickableArea(areaData, index) {
+    // If this area is for an item, and the item is already picked up, don't add the area
+    if (areaData.item && inventory.includes(areaData.item)) {
+        return;
+    }
+
     const area = document.createElement('div');
-    area.classList.add('clickable-area', 'dynamic-clickable-area'); // Add a class for easy removal
+    area.classList.add('clickable-area', 'dynamic-clickable-area');
     area.style.top = areaData.top;
     area.style.left = areaData.left;
     area.style.width = areaData.width;
     area.style.height = areaData.height;
-    // Store the texts and onClick function in data attributes
-    area.dataset.texts = JSON.stringify(areaData.texts);
-    area.dataset.index = index; // Optional, if needed
+
+    if (areaData.getText) {
+        area.getTextFunction = areaData.getText;
+    }
+
     if (areaData.onClick) {
         area.onClickFunction = areaData.onClick;
     }
 
-    // For debugging: make it visible
-    area.style.backgroundColor = 'rgba(255, 255, 0, 0.3)'; // Remove or comment out to hide after debugging
+    // If this area represents an item, display the item image
+    if (areaData.item) {
+        const itemImage = document.createElement('img');
+        itemImage.src = `items/item_${areaData.item}.png`;
+        itemImage.alt = `Item ${areaData.item}`;
+        itemImage.style.width = '100%';
+        itemImage.style.height = '100%';
+        area.appendChild(itemImage);
+    }
 
-    // Add event listener
     area.addEventListener('click', function() {
-        const texts = JSON.parse(this.dataset.texts);
-        const message = texts[progress] || 'Nothing happens.';
-        showMessage(message);
+        if (areaData.onClick) {
+            // Custom onClick logic for this area
+            areaData.onClick.call(area);
+        } else if (areaData.item) {
+            // Handle item pickup
+            if (!inventory.includes(areaData.item)) {
+                inventory.push(areaData.item);
+                updateItemBar();
+                showMessage(`You picked up Item ${areaData.item}!`);
+                area.remove();
+            } else {
+                showMessage('You already have this item.');
+            }
+        } else if (area.getTextFunction) {
+            // Handle dialogues with conditions
+            const message = area.getTextFunction();
+            showMessage(message);
 
-        // Call the onClick function if it exists
-        if (this.onClickFunction) {
-            this.onClickFunction();
+            // Execute the onClick function if it exists
+            if (area.onClickFunction) {
+                area.onClickFunction.call(area);
+            }
+        } else {
+            // Default action if no getTextFunction
+            showMessage('Nothing happens.');
         }
     });
 
     overlay.appendChild(area);
+}
+
+// Function to update the item bar
+function updateItemBar() {
+    // Get all item slots
+    const itemSlots = document.querySelectorAll('.item-slot');
+    // Clear all slots
+    itemSlots.forEach(slot => {
+        slot.innerHTML = '';
+    });
+    // Add items to slots
+    inventory.forEach((itemId, index) => {
+        if (index < itemSlots.length) {
+            const slot = itemSlots[index];
+            const itemImage = document.createElement('img');
+            itemImage.src = `items/item_${itemId}.png`; // Ensure item images are in 'items' folder
+            itemImage.alt = `Item ${itemId}`;
+            slot.appendChild(itemImage);
+        }
+    });
 }
 
 // Function to display a message in the message box
@@ -179,10 +322,12 @@ function moveForward() {
         // Revert to previous position
         player.x = prevX;
         player.y = prevY;
-        alert('You cannot move further in this direction.');
+        // Display the message in the message box
+        showMessage('You cannot move further in this direction.');
+    } else {
+        // Proceed with scene change
+        updateSceneImage();
     }
-
-    updateSceneImage();
 }
 
 // Start the game

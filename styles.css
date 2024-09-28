@@ -10,6 +10,19 @@ body, html {
     height: 100%;
     overflow: hidden;
     background-color: #000;
+    font-family: Arial, sans-serif;
+}
+
+/* Start Game Button */
+#start-game-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px 40px;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 5;
 }
 
 /* Game Container */
@@ -24,7 +37,7 @@ body, html {
 #scene-image {
     width: 100%;
     height: 100%;
-    object-fit: contain;
+    object-fit: cover;
     object-position: center;
     z-index: 1;
 }
@@ -42,16 +55,17 @@ body, html {
 .overlay-button {
     position: absolute;
     cursor: pointer;
-    background-color: rgba(255, 255, 255, 0.5);
+    background-color: rgba(0, 0, 0, 0.5);
+    border: 2px solid #fff;
     border-radius: 50%;
-    width: 50px;
-    height: 50px;
+    width: 60px;
+    height: 60px;
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 4;
-    font-size: 24px; /* Adjust size as needed */
-    color: white;
+    font-size: 32px;
+    color: #fff;
 }
 
 /* Positioning the buttons */
@@ -68,7 +82,7 @@ body, html {
 }
 
 #move-forward {
-    bottom: 20px;
+    bottom: 100px;
     left: 50%;
     transform: translateX(-50%);
 }
@@ -81,30 +95,36 @@ body, html {
 }
 
 #rotate-left::after {
-    content: '<';
+    content: '⟲';
 }
 
 #move-forward::after {
-    content: '^';
+    content: '↑';
 }
 
 #rotate-right::after {
-    content: '>';
+    content: '⟳';
 }
 
 /* Clickable Areas */
 .clickable-area {
     position: absolute;
     cursor: pointer;
-    /* For debugging: make it visible */
-    background-color: rgba(255, 255, 0, 0.3); /* Yellow with transparency */
-    /* Remove or comment out the background color after debugging */
+    /* Remove or comment out any background color */
+    /* background-color: rgba(255, 255, 0, 0.3); */ /* Comment out after debugging */
+}
+
+.clickable-area img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
 }
 
 /* Message Box */
 #message-box {
     position: absolute;
-    bottom: 80px; /* Adjust as needed */
+    bottom: 180px; /* Adjusted to make room for the item bar */
     left: 50%;
     transform: translateX(-50%);
     padding: 10px 20px;
@@ -122,12 +142,59 @@ body, html {
     opacity: 1;
 }
 
+/* Item Bar */
+#item-bar {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    width: 240px; /* Adjusted width */
+    height: 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 3;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.item-slot {
+    width: 40px;
+    height: 40px;
+    border: 2px solid #fff;
+    border-radius: 5px;
+    background-color: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.item-slot img {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+/* Music Control Button */
+#toggle-music-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 5;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    border-radius: 5px;
+}
+
 /* Responsive Design for Mobile Devices */
 @media (max-width: 600px) {
     .overlay-button {
-        width: 40px;
-        height: 40px;
-        font-size: 20px;
+        width: 50px;
+        height: 50px;
+        font-size: 24px;
     }
 
     #rotate-left {
@@ -139,11 +206,30 @@ body, html {
     }
 
     #move-forward {
-        bottom: 10px;
+        bottom: 90px; /* Adjusted to make room for the item bar */
     }
 
     #message-box {
-        bottom: 70px;
+        bottom: 160px; /* Adjusted to make room for the item bar */
         font-size: 16px;
+    }
+
+    #item-bar {
+        width: 200px;
+        height: 50px;
+        bottom: 10px;
+        left: 10px;
+    }
+
+    .item-slot {
+        width: 35px;
+        height: 35px;
+    }
+
+    #toggle-music-btn {
+        top: 10px;
+        right: 10px;
+        padding: 8px 16px;
+        font-size: 14px;
     }
 }
