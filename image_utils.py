@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
-
+from glob import glob
+from os.path import join
 
 
 
@@ -91,7 +92,10 @@ def resize_image(path, width=1920, height=1080):
 if __name__ == '__main__':
     
     # Resize image
-    # resize_image(path='test/test_image.jpg')
+    images_path = 'images'
+    images_path_list = glob(join(images_path, '*.jpg'))
+    for image_path in images_path_list:
+        resize_image(path=image_path)
 
     # Generate images
-    generetae_test_images()
+    # generetae_test_images()

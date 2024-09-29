@@ -1,18 +1,21 @@
 // Define the grid size
 const GRID_SIZE = 4;
 
-// Player's current state
-let player = {
-    x: 0,  // X-coordinate on the grid
-    y: 0,  // Y-coordinate on the grid
+// Player's current state (attached to the global window object)
+window.player = {
+    x: 2,  // Starting X-coordinate on the grid
+    y: 3,  // Starting Y-coordinate on the grid
     direction: 'N'  // Facing direction ('N', 'E', 'S', 'W')
 };
 
-// Game progress state
-let progress = 0; // A number between 0 and 7
+// Game progress state (attached to the global window object)
+window.progress = 0; // A number representing game progress
 
-// Player's inventory
-let inventory = []; // Array to hold item IDs
+// Player's inventory (attached to the global window object)
+window.inventory = []; // Array to hold item IDs
+
+// Game completion flag
+window.gameCompleted = false; // Flag to indicate game completion
 
 // Mapping of directions for rotation
 const directions = ['N', 'E', 'S', 'W'];
@@ -40,7 +43,7 @@ function initGame() {
         playBackgroundMusic();
         // Proceed with the game setup
         updateSceneImage();
-        // Add event listeners
+        // Add event listeners for controls
         rotateLeftBtn.addEventListener('click', rotateLeft);
         rotateRightBtn.addEventListener('click', rotateRight);
         moveForwardBtn.addEventListener('click', moveForward);
@@ -74,83 +77,6 @@ function toggleMusic() {
     }
 }
 
-// Clickable areas data with new items added
-const clickableAreasData = {
-    '0_0_N': [
-        // Existing clickable areas in this scene
-        {
-            top: '30%',
-            left: '40%',
-            width: '20%',
-            height: '20%',
-            getText: function() {
-                if (progress === 0 && inventory.includes(1)) {
-                    return 'You have found a secret passage! (Text2)';
-                } else {
-                    return 'This is an old oak tree. (Text1)';
-                }
-            },
-            onClick: function() {
-                if (progress === 0 && inventory.includes(1)) {
-                    progress += 1; // Increment the progress level by 1
-                    showMessage('Your progress has increased!');
-                }
-            }
-        },
-        // Item 1 placement
-        {
-            top: '50%',
-            left: '60%',
-            width: '10%',
-            height: '10%',
-            item: 1 // Item ID
-            // No onClick function needed
-        },
-    ],
-    '0_0_E': [
-        // Item 2 placement
-        {
-            top: '50%',
-            left: '50%',
-            width: '10%',
-            height: '10%',
-            item: 2 // Item ID
-            // No onClick function needed
-        },
-    ],
-    '0_0_S': [
-        // Item 3 with conditional pickup
-        {
-            top: '50%',
-            left: '50%',
-            width: '10%',
-            height: '10%',
-            item: 3, // Item ID
-            getText: function() {
-                if (inventory.includes(1) && inventory.includes(2)) {
-                    return 'You can now pick up the mystical Item 3!';
-                } else {
-                    return 'A mysterious object is here, but you feel like something is missing.';
-                }
-            },
-            onClick: function() {
-                if (inventory.includes(1) && inventory.includes(2)) {
-                    // Player can pick up the item
-                    inventory.push(3);
-                    updateItemBar();
-                    showMessage('You have acquired Item 3!');
-                    // Remove the item from the scene
-                    this.remove();
-                } else {
-                    // Cannot pick up the item yet
-                    showMessage('You need Items 1 and 2 to pick this up.');
-                }
-            }
-        },
-    ],
-    // Other scenes...
-};
-
 // Update the scene image based on player's position and direction
 function updateSceneImage() {
     // Ensure coordinates are within grid bounds
@@ -160,7 +86,7 @@ function updateSceneImage() {
     if (player.y >= GRID_SIZE) player.y = GRID_SIZE - 1;
 
     // Construct the image filename
-    const imagePath = `images/area_${player.x}_${player.y}_${player.direction}.jpg`;
+    const imagePath = `areas/area_${player.x}_${player.y}_${player.direction}.jpg`;
     sceneImage.src = imagePath;
 
     // Remove existing clickable areas
@@ -168,8 +94,8 @@ function updateSceneImage() {
 
     // Add new clickable areas for the current scene
     const sceneKey = `${player.x}_${player.y}_${player.direction}`;
-    if (clickableAreasData.hasOwnProperty(sceneKey)) {
-        const areas = clickableAreasData[sceneKey];
+    if (window.clickableAreasData && window.clickableAreasData.hasOwnProperty(sceneKey)) {
+        const areas = window.clickableAreasData[sceneKey];
         areas.forEach((areaData, index) => {
             addClickableArea(areaData, index);
         });
@@ -186,6 +112,11 @@ function removeClickableAreas() {
 
 // Function to add a clickable area
 function addClickableArea(areaData, index) {
+    // Check for condition
+    if (areaData.condition && !areaData.condition()) {
+        return; // Do not add this area if the condition is not met
+    }
+
     // If this area is for an item, and the item is already picked up, don't add the area
     if (areaData.item && inventory.includes(areaData.item)) {
         return;
@@ -248,8 +179,8 @@ function addClickableArea(areaData, index) {
     overlay.appendChild(area);
 }
 
-// Function to update the item bar
-function updateItemBar() {
+// Function to update the item bar (attached to the global window object)
+window.updateItemBar = function() {
     // Get all item slots
     const itemSlots = document.querySelectorAll('.item-slot');
     // Clear all slots
@@ -266,10 +197,10 @@ function updateItemBar() {
             slot.appendChild(itemImage);
         }
     });
-}
+};
 
-// Function to display a message in the message box
-function showMessage(message) {
+// Function to display a message in the message box (attached to the global window object)
+window.showMessage = function(message) {
     messageBox.textContent = message;
     messageBox.classList.add('show');
     messageBox.style.display = 'block';
@@ -279,7 +210,47 @@ function showMessage(message) {
         messageBox.classList.remove('show');
         messageBox.style.display = 'none';
     }, 3000);
-}
+};
+
+// Function to show and play the video
+window.showVideo = function(videoSrc) {
+    const videoOverlay = document.getElementById('video-overlay');
+    const gameVideo = document.getElementById('game-video');
+    const closeVideoBtn = document.getElementById('close-video-btn');
+
+    // Set the video source
+    gameVideo.src = videoSrc;
+
+    // Show the video overlay
+    videoOverlay.style.display = 'flex';
+
+    // Play the video
+    gameVideo.play();
+
+    // Event listener to close the video
+    closeVideoBtn.addEventListener('click', closeVideo);
+
+    // Close the video when it ends
+    gameVideo.addEventListener('ended', closeVideo);
+
+    // Function to close the video
+    function closeVideo() {
+        // Pause the video
+        gameVideo.pause();
+        // Reset the video source
+        gameVideo.src = '';
+        // Hide the overlay
+        videoOverlay.style.display = 'none';
+        // Remove event listeners
+        closeVideoBtn.removeEventListener('click', closeVideo);
+        gameVideo.removeEventListener('ended', closeVideo);
+
+        // Additional logic after video ends
+        // Set a game completion flag
+        window.gameCompleted = true;
+        showMessage('Congratulations! You have completed the game.');
+    }
+};
 
 // Rotate the player to the left
 function rotateLeft() {
@@ -304,16 +275,16 @@ function moveForward() {
 
     switch (player.direction) {
         case 'N':
-            player.y -= 1;
+            player.y += 1; // Moving North increases y by 1
             break;
         case 'E':
-            player.x += 1;
+            player.x += 1; // Moving East increases x by 1
             break;
         case 'S':
-            player.y += 1;
+            player.y -= 1; // Moving South decreases y by 1
             break;
         case 'W':
-            player.x -= 1;
+            player.x -= 1; // Moving West decreases x by 1
             break;
     }
 
