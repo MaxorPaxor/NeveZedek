@@ -9,7 +9,7 @@ window.player = {
 };
 
 // Game progress state (attached to the global window object)
-window.progress = 0; // A number representing game progress
+window.progress = 4; // A number representing game progress
 
 // Player's inventory (attached to the global window object)
 window.inventory = []; // Array to hold item IDs
@@ -33,20 +33,27 @@ function initGame() {
     // Add event listener to Start Game button
     const startGameBtn = document.getElementById('start-game-btn');
     startGameBtn.addEventListener('click', function() {
-        // Hide the Start Game button
-        startGameBtn.style.display = 'none';
+        // Hide the Start Screen
+        const startScreen = document.getElementById('start-screen');
+        startScreen.style.display = 'none';
+
         // Show the game container
         document.getElementById('game-container').style.display = 'block';
+
         // Show the music control button
         document.getElementById('toggle-music-btn').style.display = 'block';
+
         // Play background music
         playBackgroundMusic();
+
         // Proceed with the game setup
         updateSceneImage();
+
         // Add event listeners for controls
         rotateLeftBtn.addEventListener('click', rotateLeft);
         rotateRightBtn.addEventListener('click', rotateRight);
         moveForwardBtn.addEventListener('click', moveForward);
+
         // Add event listener to toggle music button
         const toggleMusicBtn = document.getElementById('toggle-music-btn');
         toggleMusicBtn.addEventListener('click', toggleMusic);
@@ -156,10 +163,10 @@ function addClickableArea(areaData, index) {
             if (!inventory.includes(areaData.item)) {
                 inventory.push(areaData.item);
                 updateItemBar();
-                showMessage(`You picked up Item ${areaData.item}!`);
+                showMessage(`הופה! מצאתי משהו`);
                 area.remove();
             } else {
-                showMessage('You already have this item.');
+                showMessage('ברר');
             }
         } else if (area.getTextFunction) {
             // Handle dialogues with conditions
@@ -172,7 +179,7 @@ function addClickableArea(areaData, index) {
             }
         } else {
             // Default action if no getTextFunction
-            showMessage('Nothing happens.');
+            showMessage('לא קורה כלום');
         }
     });
 
@@ -209,7 +216,7 @@ window.showMessage = function(message) {
     setTimeout(() => {
         messageBox.classList.remove('show');
         messageBox.style.display = 'none';
-    }, 3000);
+    }, 6000);
 };
 
 // Function to show and play the video
@@ -217,6 +224,13 @@ window.showVideo = function(videoSrc) {
     const videoOverlay = document.getElementById('video-overlay');
     const gameVideo = document.getElementById('game-video');
     const closeVideoBtn = document.getElementById('close-video-btn');
+    const backgroundMusic = document.getElementById('background-music');
+
+    // Store the previous muted state of the background music
+    const wasMusicMuted = backgroundMusic.muted;
+
+    // Mute the background music
+    backgroundMusic.muted = true;
 
     // Set the video source
     gameVideo.src = videoSrc;
@@ -245,12 +259,18 @@ window.showVideo = function(videoSrc) {
         closeVideoBtn.removeEventListener('click', closeVideo);
         gameVideo.removeEventListener('ended', closeVideo);
 
+        // Unmute the background music if it was not muted before
+        backgroundMusic.muted = wasMusicMuted;
+
         // Additional logic after video ends
-        // Set a game completion flag
         window.gameCompleted = true;
-        showMessage('Congratulations! You have completed the game.');
+        showMessage(
+            `יפה, מצאת את טובי.
+            מזל טוב!`
+        );
     }
 };
+
 
 // Rotate the player to the left
 function rotateLeft() {
@@ -294,7 +314,7 @@ function moveForward() {
         player.x = prevX;
         player.y = prevY;
         // Display the message in the message box
-        showMessage('You cannot move further in this direction.');
+        showMessage('טובי לא שם');
     } else {
         // Proceed with scene change
         updateSceneImage();
