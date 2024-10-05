@@ -28,6 +28,30 @@ const moveForwardBtn = document.getElementById('move-forward');
 const overlay = document.getElementById('overlay');
 const messageBox = document.getElementById('message-box');
 
+// Object to keep track of preloaded images
+const preloadedImages = {};
+
+// Function to preload an image
+function preloadImage(src) {
+    if (!preloadedImages[src]) {
+        const img = new Image();
+        img.src = src;
+        preloadedImages[src] = img;
+    }
+}
+
+// Function to preload all scene images
+function preloadAllImages() {
+    for (let x = 0; x < GRID_SIZE; x++) {
+        for (let y = 0; y < GRID_SIZE; y++) {
+            directions.forEach(dir => {
+                const imagePath = `areas/area_${x}_${y}_${dir}.jpg`;
+                preloadImage(imagePath);
+            });
+        }
+    }
+}
+
 // Initialize the game
 function initGame() {
     // Add event listener to Start Game button
@@ -42,6 +66,9 @@ function initGame() {
 
         // Show the music control button
         document.getElementById('toggle-music-btn').style.display = 'block';
+
+        // // Preload all images
+        preloadAllImages();
 
         // Play background music
         playBackgroundMusic();
