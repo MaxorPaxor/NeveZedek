@@ -94,7 +94,7 @@ def compress_image(path):
     img = cv2.imread(path)
 
     # Define the JPEG compression parameters
-    compression_params = [cv2.IMWRITE_JPEG_QUALITY, 50]  # Set quality from 0 to 100 (higher is better quality)
+    compression_params = [cv2.IMWRITE_JPEG_QUALITY, 80]  # Set quality from 0 to 100 (higher is better quality)
     cv2.imwrite(path, img, compression_params)
 
 
