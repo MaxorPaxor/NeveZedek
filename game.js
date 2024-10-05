@@ -9,7 +9,7 @@ window.player = {
 };
 
 // Game progress state (attached to the global window object)
-window.progress = 4; // A number representing game progress
+window.progress = 0; // A number representing game progress
 
 // Player's inventory (attached to the global window object)
 window.inventory = []; // Array to hold item IDs

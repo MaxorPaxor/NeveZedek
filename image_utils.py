@@ -89,13 +89,23 @@ def resize_image(path, width=1920, height=1080):
     cv2.imwrite(path, img_cropped)
 
 
+def compress_image(path):
+    # Read the image using OpenCV
+    img = cv2.imread(path)
+
+    # Define the JPEG compression parameters
+    compression_params = [cv2.IMWRITE_JPEG_QUALITY, 70]  # Set quality from 0 to 100 (higher is better quality)
+    cv2.imwrite(path, img, compression_params)
+
+
 if __name__ == '__main__':
     
     # Resize image
-    images_path = 'images'
+    images_path = 'areas'
     images_path_list = glob(join(images_path, '*.jpg'))
     for image_path in images_path_list:
-        resize_image(path=image_path)
+        # resize_image(path=image_path)
+        compress_image(path=image_path)
 
     # Generate images
     # generetae_test_images()
