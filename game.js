@@ -31,59 +31,75 @@ const messageBox = document.getElementById('message-box');
 // Object to keep track of preloaded images
 const preloadedImages = {};
 
-// Function to preload an image
-function preloadImage(src) {
-    if (!preloadedImages[src]) {
-        const img = new Image();
-        img.src = src;
-        preloadedImages[src] = img;
-    }
-}
-
 // Function to preload all scene images
 function preloadAllImages() {
+    const promises = [];
     for (let x = 0; x < GRID_SIZE; x++) {
         for (let y = 0; y < GRID_SIZE; y++) {
             directions.forEach(dir => {
                 const imagePath = `areas/area_${x}_${y}_${dir}.jpg`;
-                preloadImage(imagePath);
+                const promise = preloadImageAsync(imagePath);
+                promises.push(promise);
             });
         }
     }
+    return Promise.all(promises);
 }
 
-// Initialize the game
+// Function to preload an image and return a Promise
+function preloadImageAsync(src) {
+    return new Promise((resolve, reject) => {
+        if (!preloadedImages[src]) {
+            const img = new Image();
+            img.onload = () => {
+                preloadedImages[src] = img;
+                resolve();
+            };
+            img.onerror = reject;
+            img.src = src;
+        } else {
+            resolve();
+        }
+    });
+}
+
 function initGame() {
-    // Add event listener to Start Game button
     const startGameBtn = document.getElementById('start-game-btn');
     startGameBtn.addEventListener('click', function() {
         // Hide the Start Screen
         const startScreen = document.getElementById('start-screen');
         startScreen.style.display = 'none';
 
-        // Show the game container
-        document.getElementById('game-container').style.display = 'block';
+        // Show loading indicator
+        const loadingIndicator = document.getElementById('loading-indicator');
+        loadingIndicator.style.display = 'block';
 
-        // Show the music control button
-        document.getElementById('toggle-music-btn').style.display = 'block';
+        // Preload all images
+        preloadAllImages().then(() => {
+            // Hide loading indicator
+            loadingIndicator.style.display = 'none';
 
-        // // Preload all images
-        preloadAllImages();
+            // Show the game container
+            document.getElementById('game-container').style.display = 'block';
 
-        // Play background music
-        playBackgroundMusic();
+            // Show the music control button
+            document.getElementById('toggle-music-btn').style.display = 'block';
 
-        // Proceed with the game setup
-        updateSceneImage();
+            // Play background music
+            playBackgroundMusic();
 
-        // Add event listeners for controls
-        rotateLeftBtn.addEventListener('click', rotateLeft);
-        rotateRightBtn.addEventListener('click', rotateRight);
-        moveForwardBtn.addEventListener('click', moveForward);
+            // Proceed with the game setup
+            updateSceneImage();
 
-        // Add event listener to toggle music button
-        const toggleMusicBtn = document.getElementById('toggle-music-btn');
-        toggleMusicBtn.addEventListener('click', toggleMusic);
+            // Add event listeners for controls
+            rotateLeftBtn.addEventListener('click', rotateLeft);
+            rotateRightBtn.addEventListener('click', rotateRight);
+            moveForwardBtn.addEventListener('click', moveForward);
+
+            // Add event listener to toggle music button
+            const toggleMusicBtn = document.getElementById('toggle-music-btn');
+            toggleMusicBtn.addEventListener('click', toggleMusic);
+        });
     });
 }
 
