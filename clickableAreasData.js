@@ -90,7 +90,7 @@ window.clickableAreasData = {
                         `אלדד ואלון:
                         זאת הקופסת קרטון הכי שווה בעיר!
                         אם את רוצה לקבל אותה, תצטרכי להביא לנו משהו בתמורה.
-                        אם תביאי לנו דג רקוב וגבינה ממש מסריחה,
+                        אם תביאי לנו דג רקוב מאיזה מסעדה וגבינה ממש מסריחה מהמעדניה,
                         אנחנו נהיה מוכנים לשקול להביא לך את הקופסה.
                         `
                     );
@@ -341,8 +341,8 @@ window.clickableAreasData = {
         {
             top: '15%',
             left: '25%',
-            width: '4%',
-            height: '6%',
+            width: '8%',
+            height: '12%',
             item: 6 // Item ID
             // No onClick function needed
         },
@@ -353,8 +353,8 @@ window.clickableAreasData = {
         {
             top: '15%',
             left: '15%',
-            width: '4%',
-            height: '6%',
+            width: '8%',
+            height: '12%',
             item: 7 // Item ID
             // No onClick function needed
         },
@@ -365,8 +365,8 @@ window.clickableAreasData = {
         {
             top: '10%',
             left: '49%',
-            width: '4%',
-            height: '6%',
+            width: '8%',
+            height: '12%',
             item: 8 // Item ID
             // No onClick function needed
         },
