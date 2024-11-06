@@ -396,6 +396,6 @@ window.clickableAreasData['2_3_E'].push({
         // Play the video
         showVideo('video/final_video.mp4');
         // Remove the item from the scene
-        this.remove();
+        // this.remove();
     }
 });
