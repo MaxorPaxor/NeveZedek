@@ -9,7 +9,7 @@ window.player = {
 };
 
 // Game progress state (attached to the global window object)
-window.progress = 0; // A number representing game progress
+window.progress = 4; // A number representing game progress
 
 // Player's inventory (attached to the global window object)
 window.inventory = []; // Array to hold item IDs
@@ -62,6 +62,14 @@ function preloadImageAsync(src) {
         }
     });
 }
+
+// window.videoPreloaded = false;
+// // Function to preload the video
+// function preloadVideo() {
+//     const gameVideo = document.getElementById('game-video');
+//     gameVideo.src = 'video/final_video.mp4';
+//     gameVideo.load(); // Start loading the video
+// }
 
 function initGame() {
     const startGameBtn = document.getElementById('start-game-btn');
@@ -280,7 +288,7 @@ window.showVideo = function(videoSrc) {
     backgroundMusic.muted = true;
 
     // Set the video source
-    gameVideo.src = videoSrc;
+    // gameVideo.src = videoSrc;
 
     // Show the video overlay
     videoOverlay.style.display = 'flex';
