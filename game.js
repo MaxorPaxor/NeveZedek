@@ -9,7 +9,7 @@ window.player = {
 };
 
 // Game progress state (attached to the global window object)
-window.progress = 0; // A number representing game progress
+window.progress = 4; // A number representing game progress
 
 // Player's inventory (attached to the global window object)
 window.inventory = []; // Array to hold item IDs
@@ -73,6 +73,10 @@ function initGame() {
         // Show loading indicator
         const loadingIndicator = document.getElementById('loading-indicator');
         loadingIndicator.style.display = 'block';
+
+        // Set the video source to start preloading
+        const gameVideo = document.getElementById('game-video');
+        gameVideo.src = 'video/final_video.mp4';
 
         // Preload all images
         preloadAllImages().then(() => {
